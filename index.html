@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qahwa & Co — Customer Analytics Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --espresso: #2b1810;
+    --coffee: #4a2c1a;
+    --crema: #c8915f;
+    --crema-light: #e0b384;
+    --foam: #f4ebe0;
+    --foam-dark: #e8dcc9;
+    --cream: #faf6f0;
+    --ink: #1a1410;
+    --ink-soft: #6b5d50;
+    --line: #e5dac9;
+    --green: #16a34a;
+    --cyan: #0891b2;
+    --gold: #ca8a04;
+    --orange: #ea580c;
+    --red: #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .serif { font-family: 'Fraunces', serif; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,246,240,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 0.9rem 0;
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto; padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; font-size: 1.05rem; }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--espresso); color: var(--crema-light);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.1rem;
+  }
+  .nav-links { display: flex; gap: 1.8rem; font-size: 0.88rem; font-weight: 500; }
+  .nav-links a { color: var(--ink-soft); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--espresso); }
+  .nav-cta {
+    background: var(--espresso); color: var(--foam);
+    padding: 0.5rem 1.1rem; border-radius: 8px; font-size: 0.85rem;
+    font-weight: 600; text-decoration: none;
+  }
+  @media (max-width: 768px) { .nav-links { display: none; } }
+
+  /* ─── HERO ─── */
+  .hero {
+    max-width: 1200px; margin: 0 auto; padding: 4.5rem 2rem 3rem;
+    position: relative;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--crema);
+    margin-bottom: 1.5rem; font-weight: 500;
+  }
+  .eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--crema); }
+  .hero h1 {
+    font-family: 'Fraunces', serif; font-weight: 600;
+    font-size: clamp(2.4rem, 6vw, 4.2rem); line-height: 1.05;
+    letter-spacing: -0.02em; margin-bottom: 1.3rem; color: var(--espresso);
+  }
+  .hero h1 em { font-style: italic; color: var(--crema); }
+  .hero-lead {
+    font-size: 1.15rem; color: var(--ink-soft); max-width: 580px;
+    margin-bottom: 2.2rem; line-height: 1.7;
+  }
+  .hero-meta { display: flex; gap: 2.5rem; flex-wrap: wrap; }
+  .hero-meta-item { }
+  .hero-meta-val {
+    font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 600;
+    color: var(--espresso); line-height: 1;
+  }
+  .hero-meta-label {
+    font-size: 0.78rem; color: var(--ink-soft); text-transform: uppercase;
+    letter-spacing: 0.06em; margin-top: 0.4rem;
+  }
+
+  /* ─── SECTION ─── */
+  section { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; }
+  .sec-head { margin-bottom: 2rem; }
+  .sec-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--crema);
+    font-weight: 500;
+  }
+  .sec-title {
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.9rem;
+    color: var(--espresso); margin-top: 0.4rem; letter-spacing: -0.01em;
+  }
+  .sec-desc { color: var(--ink-soft); margin-top: 0.6rem; max-width: 620px; }
+
+  /* ─── KEY INSIGHT BANNER ─── */
+  .insight-banner {
+    background: var(--espresso); color: var(--foam);
+    border-radius: 18px; padding: 2.5rem; margin: 1rem auto;
+    max-width: 1200px; position: relative; overflow: hidden;
+  }
+  .insight-banner::after {
+    content: '☕'; position: absolute; right: -10px; bottom: -30px;
+    font-size: 11rem; opacity: 0.06;
+  }
+  .insight-banner .label {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--crema-light);
+    margin-bottom: 1rem;
+  }
+  .insight-banner h3 {
+    font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.7rem;
+    line-height: 1.35; max-width: 720px; position: relative; z-index: 1;
+  }
+  .insight-banner h3 strong { color: var(--crema-light); font-weight: 600; }
+
+  /* ─── SEGMENT CARDS ─── */
+  .seg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.2rem; }
+  .seg {
+    background: white; border: 1px solid var(--line); border-radius: 16px;
+    padding: 1.5rem; transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .seg:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(43,24,16,0.1); }
+  .seg-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+  .seg-name { font-weight: 700; font-size: 1.05rem; }
+  .seg-bar { width: 40px; height: 5px; border-radius: 3px; }
+  .seg-pct {
+    font-family: 'Fraunces', serif; font-size: 2.4rem; font-weight: 600;
+    line-height: 1; margin-bottom: 0.2rem;
+  }
+  .seg-pct-label { font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 1.2rem; }
+  .seg-stats { display: grid; gap: 0.6rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+  .seg-stat { display: flex; justify-content: space-between; font-size: 0.85rem; }
+  .seg-stat span:first-child { color: var(--ink-soft); }
+  .seg-stat span:last-child { font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+  .seg-action {
+    margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line);
+    font-size: 0.8rem; color: var(--ink-soft); line-height: 1.5;
+  }
+  .seg-action strong { color: var(--ink); display: block; margin-bottom: 0.3rem; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ─── CHARTS ─── */
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 820px) { .chart-grid { grid-template-columns: 1fr; } }
+  .card {
+    background: white; border: 1px solid var(--line); border-radius: 16px; padding: 1.8rem;
+  }
+  .card h4 {
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.15rem;
+    color: var(--espresso); margin-bottom: 0.3rem;
+  }
+  .card .sub { font-size: 0.83rem; color: var(--ink-soft); margin-bottom: 1.4rem; }
+  .card canvas { display: block; }
+  .card-wide { grid-column: 1 / -1; }
+
+  /* ─── KPI STRIP ─── */
+  .kpi-strip {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px; background: var(--line); border: 1px solid var(--line);
+    border-radius: 16px; overflow: hidden;
+  }
+  .kpi { background: white; padding: 1.5rem; }
+  .kpi-val { font-family: 'Fraunces', serif; font-size: 1.9rem; font-weight: 600; color: var(--espresso); line-height: 1; }
+  .kpi-label { font-size: 0.76rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem; }
+
+  /* ─── METHOD ─── */
+  .method-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; }
+  .method {
+    background: var(--foam); border-radius: 14px; padding: 1.5rem;
+    border: 1px solid var(--foam-dark);
+  }
+  .method-num {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+    color: var(--crema); font-weight: 500; margin-bottom: 0.8rem;
+  }
+  .method h5 { font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; }
+  .method p { font-size: 0.85rem; color: var(--ink-soft); line-height: 1.55; }
+  .method code {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+    background: white; padding: 0.15rem 0.45rem; border-radius: 5px;
+    color: var(--coffee); border: 1px solid var(--foam-dark);
+  }
+
+  /* ─── TECH / CTA ─── */
+  .tech-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .tech {
+    background: white; border: 1px solid var(--line); border-radius: 8px;
+    padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 500;
+    font-family: 'JetBrains Mono', monospace; color: var(--coffee);
+  }
+  .cta-box {
+    background: var(--espresso); border-radius: 18px; padding: 3rem;
+    text-align: center; color: var(--foam); margin-top: 2rem;
+  }
+  .cta-box h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.8rem; margin-bottom: 0.6rem; }
+  .cta-box p { color: var(--crema-light); margin-bottom: 1.8rem; }
+  .cta-btn {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    background: var(--crema); color: var(--espresso); font-weight: 700;
+    padding: 0.85rem 1.8rem; border-radius: 10px; text-decoration: none;
+    font-size: 0.95rem; transition: background 0.2s;
+  }
+  .cta-btn:hover { background: var(--crema-light); }
+
+  footer {
+    border-top: 1px solid var(--line); margin-top: 3rem;
+    padding: 2.5rem 2rem; text-align: center; color: var(--ink-soft); font-size: 0.85rem;
+  }
+  footer strong { color: var(--espresso); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark serif">Q</div>
+      Qahwa &amp; Co <span style="color:var(--ink-soft);font-weight:400;font-size:0.85rem;">Analytics</span>
+    </div>
+    <div class="nav-links">
+      <a href="#segments">Segments</a>
+      <a href="#patterns">Patterns</a>
+      <a href="#method">Method</a>
+      <a href="#tech">Tech Stack</a>
+    </div>
+    <a href="#github" class="nav-cta">View Code</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="eyebrow">Business Intelligence Case Study</div>
+  <h1>Turning <em>57,000 coffees</em><br>into business decisions.</h1>
+  <p class="hero-lead">
+    A complete customer analytics engine for a Bahrain coffee chain — RFM segmentation,
+    K-Means clustering, and revenue insights that tell the owner exactly who to keep,
+    win back, and reward.
+  </p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <div class="hero-meta-val">BD 200K</div>
+      <div class="hero-meta-label">Revenue analyzed</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-val">57,763</div>
+      <div class="hero-meta-label">Transactions</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-val">800</div>
+      <div class="hero-meta-label">Customers</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-val">5</div>
+      <div class="hero-meta-label">Segments found</div>
+    </div>
+  </div>
+</div>
+
+<div class="insight-banner">
+  <div class="label">// The headline finding</div>
+  <h3>Just <strong>13% of customers</strong> — the "Champions" — generate
+  <strong>45% of all revenue</strong>. Losing one Champion costs the same as losing
+  39 occasional visitors.</h3>
+</div>
+
+<section id="segments">
+  <div class="sec-head">
+    <div class="sec-tag">// 01 — Customer segments</div>
+    <h2 class="sec-title">Five distinct customer types</h2>
+    <p class="sec-desc">Every customer scored on Recency, Frequency &amp; Monetary value,
+    then grouped by K-Means clustering into segments — each with its own marketing playbook.</p>
+  </div>
+  <div class="seg-grid" id="segGrid"></div>
+</section>
+
+<section id="patterns">
+  <div class="sec-head">
+    <div class="sec-tag">// 02 — Behavioral patterns</div>
+    <h2 class="sec-title">When, where &amp; what they buy</h2>
+    <p class="sec-desc">Operational intelligence: staff the busy hours, stock the bestsellers,
+    invest in the channels that actually pay.</p>
+  </div>
+  <div class="chart-grid">
+    <div class="card">
+      <h4>Revenue by hour</h4>
+      <p class="sub">The 8AM rush drives the day — staff accordingly</p>
+      <div style="position:relative;height:260px;">
+        <canvas id="hourChart" role="img" aria-label="Bar chart of revenue by hour, peaking at 8AM">Hourly revenue.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <h4>Top products</h4>
+      <p class="sub">Coffee classics lead — Flat White is #1</p>
+      <div style="position:relative;height:260px;">
+        <canvas id="productChart" role="img" aria-label="Horizontal bar chart of top selling products">Top products.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <h4>Revenue by channel</h4>
+      <p class="sub">Dine-in still dominates, but delivery is 25%</p>
+      <div style="position:relative;height:240px;">
+        <canvas id="channelChart" role="img" aria-label="Doughnut chart of revenue by channel">Channel revenue.</canvas>
+      </div>
+      <div id="channelLegend" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;font-size:12px;color:var(--ink-soft);"></div>
+    </div>
+    <div class="card">
+      <h4>Branch performance</h4>
+      <p class="sub">Four branches, remarkably even — Adliya leads</p>
+      <div style="position:relative;height:240px;">
+        <canvas id="branchChart" role="img" aria-label="Bar chart of revenue by branch">Branch revenue.</canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="kpi-strip">
+    <div class="kpi"><div class="kpi-val">BD 3.48</div><div class="kpi-label">Avg transaction</div></div>
+    <div class="kpi"><div class="kpi-val">1.81</div><div class="kpi-label">Items per visit</div></div>
+    <div class="kpi"><div class="kpi-val">8:00</div><div class="kpi-label">Peak hour</div></div>
+    <div class="kpi"><div class="kpi-val">Sat</div><div class="kpi-label">Busiest day</div></div>
+    <div class="kpi"><div class="kpi-val">4</div><div class="kpi-label">Branches</div></div>
+    <div class="kpi"><div class="kpi-val">18 mo</div><div class="kpi-label">Data window</div></div>
+  </div>
+</section>
+
+<section id="method">
+  <div class="sec-head">
+    <div class="sec-tag">// 03 — How it works</div>
+    <h2 class="sec-title">The methodology</h2>
+    <p class="sec-desc">A reproducible pipeline any coffee shop owner could run on their own POS export.</p>
+  </div>
+  <div class="method-grid">
+    <div class="method">
+      <div class="method-num">STEP 01</div>
+      <h5>Aggregate per customer</h5>
+      <p>Roll 57K transactions up to <code>recency</code>, <code>frequency</code> &amp; <code>monetary</code> value for each of the 800 customers.</p>
+    </div>
+    <div class="method">
+      <div class="method-num">STEP 02</div>
+      <h5>RFM scoring</h5>
+      <p>Each metric scored 1–5 using <code>pd.qcut</code> quintiles. A perfect customer scores 15/15.</p>
+    </div>
+    <div class="method">
+      <div class="method-num">STEP 03</div>
+      <h5>K-Means clustering</h5>
+      <p>Standardize features, then <code>KMeans(k=5)</code> groups customers by genuine behavioral similarity.</p>
+    </div>
+    <div class="method">
+      <div class="method-num">STEP 04</div>
+      <h5>Label &amp; act</h5>
+      <p>Rank clusters by RFM, map to named segments, attach a concrete marketing action to each.</p>
+    </div>
+  </div>
+</section>
+
+<section id="tech">
+  <div class="sec-head">
+    <div class="sec-tag">// 04 — Built with</div>
+    <h2 class="sec-title">Technology</h2>
+  </div>
+  <div class="tech-row">
+    <span class="tech">Python 3.11</span>
+    <span class="tech">pandas</span>
+    <span class="tech">NumPy</span>
+    <span class="tech">scikit-learn</span>
+    <span class="tech">K-Means</span>
+    <span class="tech">RFM Analysis</span>
+    <span class="tech">Chart.js</span>
+    <span class="tech">HTML / CSS</span>
+  </div>
+
+  <div class="cta-box" id="github">
+    <h3>Full code on GitHub</h3>
+    <p>Data generator · Analytics engine · This dashboard · Documentation</p>
+    <a href="https://github.com/YOUR_USERNAME/coffee-analytics" class="cta-btn" target="_blank">
+      ⬡ &nbsp;View repository
+    </a>
+  </div>
+</section>
+
+<footer>
+  Built by <strong>Amina</strong> — Business Analytics, University of Bahrain ·
+  Portfolio project 01 / 05 · 2025
+</footer>
+
+<script id="data" type="application/json">
+{
+ "segments": [
+  {"segment":"Champions","customers":103,"pct":12.9,"avg_recency":2,"avg_frequency":305,"avg_monetary":869.91,"revenue_pct":44.6,"color":"#16a34a","action":"Reward with VIP perks, free birthday drink, early access to new menu"},
+  {"segment":"Loyal","customers":149,"pct":18.6,"avg_recency":4,"avg_frequency":104.6,"avg_monetary":382.13,"revenue_pct":28.3,"color":"#0891b2","action":"Upsell food items, introduce subscription plan, referral bonus"},
+  {"segment":"Potential","customers":363,"pct":45.4,"avg_recency":12,"avg_frequency":27.4,"avg_monetary":140.62,"revenue_pct":25.4,"color":"#ca8a04","action":"Loyalty card push, 2nd-visit discount, personalized offers"},
+  {"segment":"At Risk","customers":129,"pct":16.1,"avg_recency":79,"avg_frequency":5.7,"avg_monetary":22.68,"revenue_pct":1.5,"color":"#ea580c","action":"Win-back SMS, we-miss-you 25% off, ask for feedback"},
+  {"segment":"Lost","customers":56,"pct":7.0,"avg_recency":240,"avg_frequency":1.9,"avg_monetary":6.02,"revenue_pct":0.2,"color":"#dc2626","action":"Final reactivation offer, then move to low-cost email only"}
+ ],
+ "hourly":[{"hour":7,"revenue":14555.8},{"hour":8,"revenue":24971.4},{"hour":9,"revenue":22622.0},{"hour":10,"revenue":16472.5},{"hour":11,"revenue":12797.8},{"hour":12,"revenue":14593.6},{"hour":13,"revenue":12763.5},{"hour":14,"revenue":10847.1},{"hour":15,"revenue":13060.4},{"hour":16,"revenue":16560.1},{"hour":17,"revenue":14109.5},{"hour":18,"revenue":10832.1},{"hour":19,"revenue":7461.8},{"hour":20,"revenue":5200},{"hour":21,"revenue":3400}],
+ "products":[{"name":"Flat White","count":9237},{"name":"Spanish Latte","count":9170},{"name":"Latte","count":9155},{"name":"Americano","count":9131},{"name":"Espresso","count":9058},{"name":"Cortado","count":9054}],
+ "channels":[{"name":"Dine-in","revenue":91287.6},{"name":"Takeaway","revenue":59619.7},{"name":"Talabat","revenue":29722.0},{"name":"Jahez","revenue":20217.1}],
+ "branches":[{"name":"Adliya","revenue":53268.7},{"name":"Muharraq","revenue":52879.5},{"name":"Seef","revenue":49945.9},{"name":"Riffa","revenue":44752.3}]
+}
+</script>
+<script>
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const FMT = n => 'BD ' + Math.round(n).toLocaleString();
+
+// ─── SEGMENT CARDS ───
+const segGrid = document.getElementById('segGrid');
+DATA.segments.forEach(s => {
+  segGrid.innerHTML += `
+    <div class="seg">
+      <div class="seg-top">
+        <span class="seg-name">${s.segment}</span>
+        <span class="seg-bar" style="background:${s.color}"></span>
+      </div>
+      <div class="seg-pct" style="color:${s.color}">${s.revenue_pct}%</div>
+      <div class="seg-pct-label">of total revenue</div>
+      <div class="seg-stats">
+        <div class="seg-stat"><span>Customers</span><span>${s.customers} (${s.pct}%)</span></div>
+        <div class="seg-stat"><span>Avg visits</span><span>${Math.round(s.avg_frequency)}×</span></div>
+        <div class="seg-stat"><span>Avg spend</span><span>${FMT(s.avg_monetary)}</span></div>
+        <div class="seg-stat"><span>Last seen</span><span>${s.avg_recency}d ago</span></div>
+      </div>
+      <div class="seg-action"><strong>Recommended action</strong>${s.action}</div>
+    </div>`;
+});
+
+const FONT = "Inter, sans-serif";
+Chart.defaults.font.family = FONT;
+Chart.defaults.color = '#6b5d50';
+
+// ─── HOUR CHART ───
+new Chart(document.getElementById('hourChart'), {
+  type: 'bar',
+  data: {
+    labels: DATA.hourly.map(h => h.hour + ':00'),
+    datasets: [{
+      data: DATA.hourly.map(h => h.revenue),
+      backgroundColor: DATA.hourly.map(h => h.hour === 8 ? '#2b1810' : '#c8915f'),
+      borderRadius: 5
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: '#f0e8db' }, ticks: { callback: v => 'BD ' + (v/1000) + 'K' } },
+      x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } }
+    }
+  }
+});
+
+// ─── PRODUCT CHART ───
+new Chart(document.getElementById('productChart'), {
+  type: 'bar',
+  data: {
+    labels: DATA.products.map(p => p.name),
+    datasets: [{ data: DATA.products.map(p => p.count), backgroundColor: '#4a2c1a', borderRadius: 5 }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#f0e8db' }, ticks: { callback: v => (v/1000) + 'K' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// ─── CHANNEL CHART ───
+const chColors = ['#2b1810', '#c8915f', '#ca8a04', '#e0b384'];
+new Chart(document.getElementById('channelChart'), {
+  type: 'doughnut',
+  data: {
+    labels: DATA.channels.map(c => c.name),
+    datasets: [{ data: DATA.channels.map(c => c.revenue), backgroundColor: chColors, borderColor: '#fff', borderWidth: 3 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { display: false } } }
+});
+const total = DATA.channels.reduce((a,c) => a + c.revenue, 0);
+document.getElementById('channelLegend').innerHTML = DATA.channels.map((c,i) =>
+  `<span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:${chColors[i]}"></span>${c.name} ${Math.round(c.revenue/total*100)}%</span>`
+).join('');
+
+// ─── BRANCH CHART ───
+new Chart(document.getElementById('branchChart'), {
+  type: 'bar',
+  data: {
+    labels: DATA.branches.map(b => b.name),
+    datasets: [{ data: DATA.branches.map(b => b.revenue), backgroundColor: '#c8915f', borderRadius: 5 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: '#f0e8db' }, ticks: { callback: v => 'BD ' + (v/1000) + 'K' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
